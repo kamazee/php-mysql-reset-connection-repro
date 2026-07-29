@@ -1,0 +1,31 @@
+services:
+  database:
+    image: docker.io/library/mysql:9.7.2
+    command:
+      - --character-set-server=latin1
+      - --collation-server=latin1_swedish_ci
+      - --default-time-zone=+00:00
+    environment:
+      MYSQL_DATABASE: repro
+      MYSQL_USER: repro
+      MYSQL_PASSWORD: repro
+      MYSQL_ROOT_PASSWORD: root-repro-only
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -urepro -prepro --silent"]
+      interval: 2s
+      timeout: 3s
+      retries: 45
+      start_period: 10s
+
+  php:
+    image: docker.io/kamazee/php-mysql-reset-connection-repro:1
+    environment:
+      PHP_VERSION: ${PHP_VERSION:-8.6.0alpha3}
+      DB_HOST: ${DB_HOST:-database}
+      DB_NAME: ${DB_NAME:-repro}
+      DB_USER: ${DB_USER:-repro}
+      DB_PASSWORD: ${DB_PASSWORD:-repro}
+    depends_on:
+      database:
+        condition: service_healthy
+    command: ["php", "/app/repro.php"]

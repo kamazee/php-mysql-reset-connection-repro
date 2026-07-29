@@ -1,0 +1,8 @@
+services:
+  php:
+    image: !reset null
+    build:
+      context: .
+      args:
+        PHP_BASE_REF: php-8.6.0alpha3
+        PHP_FEATURE_REF: feat-mysqlnd-com-reset-connection
