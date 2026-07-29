@@ -1,0 +1,9 @@
+services:
+  php:
+    command: ["php-fpm-nginx"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://127.0.0.1:8080/healthz >/dev/null"]
+      interval: 2s
+      timeout: 3s
+      retries: 45
+      start_period: 2s

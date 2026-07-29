@@ -15,5 +15,5 @@ if [ ! -x "$prefix/bin/php" ]; then
   echo "Selected PHP binary is missing: $prefix/bin/php" >&2
   exit 70
 fi
-export PATH="$prefix/bin:$PATH"
+export PATH="$prefix/bin:$prefix/sbin:$PATH"
 exec "$@"

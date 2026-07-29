@@ -31,7 +31,8 @@ RUN set -eux; \
       set -- $pair; src="$1"; prefix="$2"; \
       cd "$src"; \
       ./buildconf --force; \
-      ./configure --prefix="$prefix" --disable-all --enable-cli --enable-mysqlnd \
+      ./configure --prefix="$prefix" --disable-all --enable-cli --enable-fpm --enable-mysqlnd \
+        --with-fpm-user=www-data --with-fpm-group=www-data \
         --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --enable-pdo --enable-phar \
         --with-libxml --with-openssl --with-zlib; \
       make -j"$(nproc)"; \
@@ -54,12 +55,19 @@ RUN set -eux; \
 
 FROM docker.io/library/debian:${DEBIAN_VERSION}-slim
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      ca-certificates libargon2-1 libcurl4 libedit2 libonig5 libsqlite3-0 libssl3 libxml2 libzip4 zlib1g \
+      ca-certificates curl libargon2-1 libcurl4 libedit2 libonig5 libsqlite3-0 libssl3 libxml2 libzip4 \
+      nginx-light zlib1g \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=build /opt/php /opt/php
 COPY docker/php/entrypoint.sh /usr/local/bin/php-entrypoint
+COPY docker/php/fpm.conf /etc/php-fpm.conf
+COPY docker/php/fpm-pool.conf /etc/php-fpm.d/www.conf
+COPY docker/php/fpm-nginx.conf /etc/nginx/conf.d/fpm-nginx.conf
+COPY docker/php/fpm-nginx-entrypoint.sh /usr/local/bin/php-fpm-nginx
 COPY repro.php /app/repro.php
 COPY repro-mysql-protocol.php /app/repro-mysql-protocol.php
-RUN chmod 0755 /usr/local/bin/php-entrypoint
+COPY repro-fpm.php /app/repro-fpm.php
+RUN rm -f /etc/nginx/sites-enabled/default \
+    && chmod 0755 /usr/local/bin/php-entrypoint /usr/local/bin/php-fpm-nginx
 ENTRYPOINT ["php-entrypoint"]
 CMD ["php", "/app/repro.php"]
