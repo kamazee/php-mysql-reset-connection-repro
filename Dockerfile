@@ -59,7 +59,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
 COPY --from=build /opt/php /opt/php
 COPY docker/php/entrypoint.sh /usr/local/bin/php-entrypoint
 COPY repro.php /app/repro.php
-COPY repro-clickhouse.php /app/repro-clickhouse.php
+COPY repro-mysql-protocol.php /app/repro-mysql-protocol.php
 RUN chmod 0755 /usr/local/bin/php-entrypoint
 ENTRYPOINT ["php-entrypoint"]
 CMD ["php", "/app/repro.php"]

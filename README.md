@@ -23,9 +23,26 @@ PHP_VERSION=feat-mysqlnd-com-reset-connection \
 docker compose -f compose.yaml -f compose.clickhouse.yaml down
 ```
 
-The first PHP version keeps the connection settings. The feature branch resets
-them, which breaks the stored `café` text. With ClickHouse, it opens a new
-connection because ClickHouse does not support the reset command.
+The first PHP version reuses the connection. The feature branch sends a reset.
+ClickHouse does not support that reset command.
+
+## SingleStore
+
+Running this example accepts the
+[SingleStore Free License Agreement](https://www.singlestore.com/legal/).
+It permits one Dev Image for non-production development and testing.
+
+```sh
+docker compose -f compose.yaml -f compose.singlestore.yaml up -d --wait database
+PHP_VERSION=8.6.0alpha3 \
+  docker compose -f compose.yaml -f compose.singlestore.yaml run --rm php
+PHP_VERSION=feat-mysqlnd-com-reset-connection \
+  docker compose -f compose.yaml -f compose.singlestore.yaml run --rm php
+docker compose -f compose.yaml -f compose.singlestore.yaml down
+```
+
+SingleStore accepts the reset, keeps the connection, and clears its saved
+session value. So, it's here just for the sake of completeness and in case anyone wants to play with it.
 
 ## Build locally
 
@@ -46,5 +63,8 @@ docker compose \
   -f compose.build.yaml \
   build php
 ```
+
+Replace `compose.clickhouse.yaml` with `compose.singlestore.yaml` to build the
+SingleStore example. Both use `repro-mysql-protocol.php`.
 
 Use the same `-f` options when running the locally built image.

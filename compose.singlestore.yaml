@@ -1,17 +1,16 @@
 services:
   database:
-    image: docker.io/clickhouse/clickhouse-server:26.7.1.1315
+    image: ghcr.io/singlestore-labs/singlestoredb-dev:latest
+    platform: linux/amd64
     command: []
     environment:
       MYSQL_DATABASE: !reset null
       MYSQL_USER: !reset null
       MYSQL_PASSWORD: !reset null
       MYSQL_ROOT_PASSWORD: !reset null
-      CLICKHOUSE_SKIP_USER_SETUP: "1"
-    volumes:
-      - ./docker/clickhouse/config.d/mysql.xml:/etc/clickhouse-server/config.d/mysql.xml:ro,Z
+      ROOT_PASSWORD: repro
     healthcheck: !override
-      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      test: ["CMD-SHELL", "singlestore -uroot -prepro -e 'SELECT 1'"]
       interval: 2s
       timeout: 3s
       retries: 45
@@ -21,9 +20,9 @@ services:
     environment:
       PHP_VERSION: ${PHP_VERSION:-8.6.0alpha3}
       DB_HOST: ${DB_HOST:-database}
-      DB_PORT: ${DB_PORT:-9004}
-      DB_NAME: ${DB_NAME:-default}
-      DB_USER: ${DB_USER:-default}
-      DB_PASSWORD: ${DB_PASSWORD:-}
-      DB_SERVER: clickhouse
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-}
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-repro}
+      DB_SERVER: singlestore
     command: ["php", "/app/repro-mysql-protocol.php"]
