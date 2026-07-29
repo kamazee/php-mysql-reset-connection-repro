@@ -11,7 +11,7 @@ services:
       MYSQL_PASSWORD: repro
       MYSQL_ROOT_PASSWORD: root-repro-only
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -urepro -prepro --silent"]
+      test: ["CMD-SHELL", "mysql --protocol=TCP -h 127.0.0.1 -urepro -prepro -D repro -e 'SELECT 1'"]
       interval: 2s
       timeout: 3s
       retries: 45
